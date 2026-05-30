@@ -1,0 +1,150 @@
+
+<div style="display:flex;justify-content:center;">
+<canvas id="c" width="300" height="360" style="display:block;border-radius:8px;background:#000;"></canvas>
+</div>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+
+const IMAGE_SRC = 'tu-imagen.jpg';
+
+const palette = { bg:[0,0,0], lo:[0,20,60], hi:[0,120,255], face:[100,200,255] };
+
+let userImg = null;
+let frame = 0;
+let brightness = 0;
+let bDir = 1;
+let noiseCache = null;
+let glitchActive = false;
+let glitchTimer = 0;
+
+const img = new Image();
+img.crossOrigin = 'anonymous';
+img.onload = () => { userImg = img; noiseCache = null; };
+img.onerror = () => { console.log('Imagen no encontrada'); };
+img.src = IMAGE_SRC;
+
+function lerpColor(a,b,t){
+  return [a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t, a[2]+(b[2]-a[2])*t];
+}
+
+function buildNoise(){
+  const d = ctx.createImageData(W,H);
+  for(let y=0;y<H;y++){
+    for(let x=0;x<W;x++){
+      const i=(y*W+x)*4;
+      let col;
+      if(Math.random()<0.06){
+        col=lerpColor(palette.lo,palette.hi,Math.random());
+      } else {
+        col=[0,0,0];
+      }
+      d.data[i]=col[0]; d.data[i+1]=col[1]; d.data[i+2]=col[2]; d.data[i+3]=255;
+    }
+  }
+  noiseCache=d;
+}
+
+function drawScanlines(){
+  ctx.save();
+  for(let y=0;y<H;y+=3){
+    ctx.fillStyle='rgba(0,0,0,0.18)';
+    ctx.fillRect(0,y,W,1);
+  }
+  ctx.restore();
+}
+
+function drawGlitch(){
+  const slices=3+Math.floor(Math.random()*4);
+  for(let i=0;i<slices;i++){
+    const sy=Math.floor(Math.random()*H);
+    const sh=Math.floor(1+Math.random()*5);
+    const dx=Math.floor(-10+Math.random()*20);
+    const id=ctx.getImageData(0,sy,W,sh);
+    ctx.putImageData(id,dx,sy);
+  }
+  ctx.save();
+  ctx.globalAlpha=0.08;
+  ctx.fillStyle=`rgb(${palette.hi[0]},${palette.hi[1]},${palette.hi[2]})`;
+  ctx.fillRect(0,Math.floor(Math.random()*H),W,Math.floor(1+Math.random()*4));
+  ctx.restore();
+}
+
+function drawVignette(){
+  const g=ctx.createRadialGradient(W/2,H/2,H*0.3,W/2,H/2,Math.max(W,H)*0.75);
+  g.addColorStop(0,'rgba(0,0,0,0)');
+  g.addColorStop(1,'rgba(0,0,0,0.85)');
+  ctx.fillStyle=g;
+  ctx.fillRect(0,0,W,H);
+}
+
+function drawFaceGlow(brt){
+  const gr=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,H*0.5);
+  const [r,g,b]=palette.hi;
+  gr.addColorStop(0,`rgba(${r},${g},${b},${0.18*brt})`);
+  gr.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=gr;
+  ctx.fillRect(0,0,W,H);
+}
+
+function drawFace(brt){
+  // cara ocupa casi todo el canvas
+  const fw = W * 0.92;
+  const fh = H * 0.92;
+  const fx = (W - fw) / 2;
+  const fy = (H - fh) / 2;
+
+  if(userImg){
+    ctx.save();
+    const tmpC=document.createElement('canvas');
+    tmpC.width=Math.round(fw); tmpC.height=Math.round(fh);
+    const tmpCtx=tmpC.getContext('2d');
+    const ratio=Math.min(fw/userImg.width, fh/userImg.height);
+    const dw=userImg.width*ratio, dh=userImg.height*ratio;
+    tmpCtx.drawImage(userImg,(fw-dw)/2,(fh-dh)/2,dw,dh);
+    const id=tmpCtx.getImageData(0,0,Math.round(fw),Math.round(fh));
+    const dat=id.data;
+    for(let i=0;i<dat.length;i+=4){
+      const gray=(dat[i]*0.3+dat[i+1]*0.59+dat[i+2]*0.11)/255;
+      let col;
+      if(gray<0.15) col=palette.bg;
+      else if(gray<0.45) col=lerpColor(palette.lo,palette.hi,(gray-0.15)/0.3);
+      else if(gray<0.75) col=lerpColor(palette.hi,palette.face,(gray-0.45)/0.3);
+      else col=palette.face;
+      dat[i]=col[0]; dat[i+1]=col[1]; dat[i+2]=col[2];
+      dat[i+3]=Math.round(255*(0.5+gray*0.5)*brt);
+    }
+    tmpCtx.putImageData(id,0,0);
+    ctx.drawImage(tmpC,fx,fy);
+    ctx.restore();
+  }
+}
+
+function loop(){
+  frame++;
+  if(frame%8===0){
+    brightness+=bDir*(0.05+Math.random()*0.1);
+    if(brightness>=1){ brightness=1; bDir=-1; }
+    if(brightness<=0){ brightness=0; bDir=1; }
+    if(Math.random()<0.03) brightness=Math.random()<0.5?0:1;
+    noiseCache=null;
+  }
+
+  if(Math.random()<0.008){ glitchActive=true; glitchTimer=3+Math.floor(Math.random()*6); }
+  if(glitchTimer>0) glitchTimer--;
+  else glitchActive=false;
+
+  if(!noiseCache) buildNoise();
+  ctx.putImageData(noiseCache,0,0);
+  drawFaceGlow(brightness);
+  drawFace(brightness);
+  if(glitchActive) drawGlitch();
+  drawScanlines();
+  drawVignette();
+
+  requestAnimationFrame(loop);
+}
+loop();
+</script>

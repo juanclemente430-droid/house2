@@ -1,0 +1,56 @@
+
+<style>
+  body { margin: 0; background: #000; }
+  pre {
+    font-family: 'Courier New', monospace;
+    font-size: 7px;
+    line-height: 7px;
+    letter-spacing: 1px;
+    color: blueviolet;
+    background: #000;
+    padding: 16px;
+    margin: 0;
+    display: inline-block;
+  }
+</style>
+<div style="background:#000;display:flex;justify-content:center;padding:8px;">
+<canvas id="c" style="display:none;"></canvas>
+<pre id="ascii"></pre>
+</div>
+
+<script>
+const img = new Image();
+img.crossOrigin = 'anonymous';
+
+const CHARS = '@#S%?*+;:,. ';
+
+img.onload = () => {
+  const W = 120, H = 60;
+  const canvas = document.getElementById('c');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0, W, H);
+  const data = ctx.getImageData(0, 0, W, H).data;
+
+  let result = '';
+  for(let y = 0; y < H; y++){
+    for(let x = 0; x < W; x++){
+      const i = (y * W + x) * 4;
+      const brightness = (data[i]*0.3 + data[i+1]*0.59 + data[i+2]*0.11) / 255;
+      // invertimos porque el dibujo es oscuro sobre blanco
+      const inverted = 1 - brightness;
+      const charIndex = Math.floor(inverted * (CHARS.length - 1));
+      result += CHARS[charIndex];
+    }
+    result += '\n';
+  }
+  document.getElementById('ascii').textContent = result;
+};
+
+img.onerror = () => {
+  document.getElementById('ascii').textContent = 'No se pudo cargar la imagen.';
+};
+
+// Carga la imagen subida
+img.src = 'imagenes/nuevo1.png';
+</script>
