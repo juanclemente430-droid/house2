@@ -20,6 +20,13 @@ body {
   overflow: hidden;
 }
 
+.imagen_glich{
+  display:flex;
+  justify-content:center;
+  border: 2px solid rgba(65, 205, 220, 255);
+  margin: 8px;
+}
+
 /* =============================================
    ESCRITORIO — contenedor de ventanas
    Ocupa toda la pantalla menos la taskbar

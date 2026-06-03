@@ -199,21 +199,18 @@ function cerrarVentana(id) {
   // Eliminamos del registro
   delete registroVentanas[id];
 }
-
 function toggleMinimizar(id) {
   const s = registroVentanas[id];
   if (!s) return;
 
   s.minimizada = !s.minimizada;
 
-  // Agregar/quitar clase que oculta el cuerpo (ver CSS)
-  s.el.classList.toggle('minimizada', s.minimizada);
+  // Ocultar/mostrar la ventana completa
+  s.el.style.display = s.minimizada ? 'none' : 'flex';
 
-  // Actualizar aspecto del botón en la taskbar
   const btnTaskbar = document.getElementById('taskbar-btn-' + id);
   if (btnTaskbar) btnTaskbar.classList.toggle('minimizada', s.minimizada);
 
-  // Si estamos restaurando, traer al frente
   if (!s.minimizada) traerAlFrente(id);
 }
 
@@ -331,3 +328,45 @@ function crearNota() {
   agregarBotonTaskbar(id);
   traerAlFrente(id);
 }
+
+//Sonido de boton
+const ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+function sonidoHover() {
+  if (ctx.state === 'suspended') ctx.resume();
+
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+
+osc.frequency.value = 400;
+osc.type = 'square';
+  gain.gain.setValueAtTime(0.7, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+
+  osc.start();
+  osc.stop(ctx.currentTime + 0.12);
+}
+
+function sonidoClick() {
+  if (ctx.state === 'suspended') ctx.resume();
+
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+
+  osc.frequency.value = 440;   // más grave que el hover
+  osc.type = 'square';         // más "duro"
+  gain.gain.setValueAtTime(0.7, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+
+  osc.start();
+  osc.stop(ctx.currentTime + 0.2);
+}
+
+document.querySelectorAll('.menu_boton').forEach(btn => {
+  btn.addEventListener('mouseenter', sonidoHover);
+  btn.addEventListener('mousedown', sonidoClick);
+});
