@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>House</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="googleapis.com">
+    <link rel="preconnect" href="gstatic.com" crossorigin>
+    <link href="googleapis.com" rel="stylesheet">
+</head>
+<body>
+<div id="escritorio">
+    <div class="ventana" id="win-menu" style="left: 20px; top: 20px; width: 580px; height: 410px;">
+      <div class="ventana-barra" data-id="win-menu">
+        <span class="ventana-titulo">MENÚ</span>
+        <div class="ventana-controles">
+          <button class="btn-ventana btn-min" data-id="win-menu" title="Minimizar">_</button>
+          <button class="btn-ventana btn-max" data-id="win-menu" title="Maximizar">□</button>
+          <button class="btn-ventana btn-close" data-id="win-menu" title="Cerrar">✕</button>
+        </div>
+      </div>
+      <div class="ventana-cuerpo">
+        <div class="ascii-container">
+          <pre>
+              _-o#&&*''''?d:>b\_
+          _o/"`''  '',, dMF9MMMMMHo_
+       .o&#'        `"MbHMMMMMMMMMMMHo.
+     .o"" '         vodM*$&&HMMMMMMMMMM?.
+    ,'              $M&ood,~'`(&##MMMMMMH\
+   /               ,MMMMMMM#b?#bobMMMMHMMML
+  &              ?MMMMMMMMMMMMMMMMM7MMM$R*Hk
+ ?$.            :MMMMMMMMMMMMMMMMMMM/HMMM|`*L
+|               |MMMMMMMMMMMMMMMMMMMMbMH'   T,
+$H#:            `*MMMMMMMMMMMMMMMMMMMMb#}'  `?
+]MMH#             ""*""""*#MMMMMMMMMMMMM'    -
+MMMMMb_                   |MMMMMMMMMMMP'     :
+HMMMMMMMHo                 `MMMMMMMMMT       .
+?MMMMMMMMP                  9MMMMMMMM}       -
+-?MMMMMMM                  |MMMMMMMMM?,d-    '
+ :|MMMMMM-                 `MMMMMMMMT .M|.   :
+  .9MMM[                    &MMMMM*' `'    .
+   :9MMk                    `MMM#"        -
+     &M}                     `          .-
+      `&.                             .
+        `~,   .                     ./
+            . _                  .-
+              '`--._,dd###pp=""'
+
+          </pre>
+        </div>
+        <div class="menu-seleccion">
+          <h4>
+            <a href="che_guevara/inicio.html">
+              <button class="menu_boton">La maravillosa vida breve de Ernesto Guevara</button>
+            </a>
+          </h4>
+        </div>
+        <div class="resize-handle" data-id="win-menu"></div>
+      </div>
+    </div>
+    <div class="ventana" id="win-info" style="left: 610px; top: 20px; width: 730px; height: 410px;">
+      <div class="ventana-barra" data-id="win-info">
+        <span class="ventana-titulo">ACERCA DE</span>
+        <div class="ventana-controles">
+          <button class="btn-ventana btn-min" data-id="win-info" title="Minimizar">_</button>
+          <button class="btn-ventana btn-max" data-id="win-info" title="Maximizar">□</button>
+          <button class="btn-ventana btn-close" data-id="win-info" title="Cerrar">✕</button>
+        </div>
+      </div>
+      <div class="ventana-cuerpo">
+        <p class="info-texto">
+          En esta pagina subo pequeños articulos relacionados con los reels que subo en instagram.
+          <br><br>
+          Da clic en cualquier lugar para activar el sonido y sube el volumen :)
+        </p>
+        <div class="resize-handle" data-id="win-info"></div>
+      </div>
+    </div>
+</div>
+  <!-- TASKBAR inferior -->
+  <div id="taskbar">
+    <span class="taskbar-logo">SYS://</span>
+    <div id="taskbar-botones"></div>
+    <button id="btn-nueva-nota" onclick="crearNota()">+ NUEVA NOTA</button>
+  </div>
+ <!-- Sin autoplay -->
+<audio id="audio-bg" src="audio/fondo.mp3" loop></audio>
+ 
+  <script src="ventanas.js"></script>
+  <script>
+if (sessionStorage.getItem('boot-completo')) {
+  const audio = document.getElementById('audio-bg');
+  audio.volume = 1.0;
+
+  // Intentamos directo (funciona en Firefox y algunos casos)
+  audio.play().catch(() => {
+    // Si falla, esperamos cualquier interacción del usuario
+    const arrancar = () => {
+      audio.play();
+      document.removeEventListener('click', arrancar);
+      document.removeEventListener('keydown', arrancar);
+    };
+    document.addEventListener('click', arrancar);
+    document.addEventListener('keydown', arrancar);
+  });
+}
+  </script>
+</body>
+</html>

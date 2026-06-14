@@ -56,6 +56,7 @@
     <div id="taskbar-botones"></div>
     <button id="btn-nueva-nota" onclick="crearNota()">+ NUEVA NOTA</button>
   </div>
+<audio id="audio-bg" src="..//audio/fondo.mp3" loop></audio>
 <script src="..//ventanas.js"></script>
 <script>
 const glitchCanvas = document.getElementById('c');
@@ -225,7 +226,7 @@ function abrirArticulo() {
         <h3 style="color: rgba(65,205,220,1); margin-bottom: 16px;">
           Golpe de Estado en Guatemala orquestado por EUA en 1954
         </h3>
-        <p>Aquí va el contenido de tu artículo...</p>
+        <p>Aquí va artículo...</p>
       </div>
       <div class="resize-handle" data-id="${id}"></div>
     </div>
@@ -245,6 +246,22 @@ function abrirArticulo() {
   traerAlFrente(id);
 }
 loop();
+if (sessionStorage.getItem('boot-completo')) {
+  const audio = document.getElementById('audio-bg');
+  audio.volume = 1.0;
+
+  // Intentamos directo (funciona en Firefox y algunos casos)
+  audio.play().catch(() => {
+    // Si falla, esperamos cualquier interacción del usuario
+    const arrancar = () => {
+      audio.play();
+      document.removeEventListener('click', arrancar);
+      document.removeEventListener('keydown', arrancar);
+    };
+    document.addEventListener('click', arrancar);
+    document.addEventListener('keydown', arrancar);
+  });
+}
 </script>
 </body>
 </html>

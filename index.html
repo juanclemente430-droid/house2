@@ -1,89 +1,358 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <title>House</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="preconnect" href="googleapis.com">
-    <link rel="preconnect" href="gstatic.com" crossorigin>
-    <link href="googleapis.com" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>INICIANDO...</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@900&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #000;
+      color: #00e5ff;
+      font-family: 'Courier New', monospace;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      cursor: none;
+    }
+
+    /* Scanlines — líneas horizontales sutiles encima de todo */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 2px,
+        rgba(0, 0, 0, 0.08) 2px,
+        rgba(0, 0, 0, 0.08) 4px
+      );
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* Cursor personalizado — cruz de mira */
+    #cursor {
+      position: fixed;
+      width: 20px;
+      height: 20px;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+    }
+    #cursor::before,
+    #cursor::after {
+      content: '';
+      position: absolute;
+      background: #00e5ff;
+      box-shadow: 0 0 6px #00e5ff;
+    }
+    #cursor::before { width: 1px; height: 100%; left: 50%; top: 0; }
+    #cursor::after  { width: 100%; height: 1px; top: 50%; left: 0; }
+
+    /* Contenedor del terminal */
+    #terminal {
+      width: min(700px, 90vw);
+      padding: 32px;
+      border: 1px solid rgba(0, 229, 255, 0.2);
+      background: rgba(0, 229, 255, 0.03);
+      position: relative;
+    }
+
+    /* Esquinas decorativas */
+    #terminal::before,
+    #terminal::after {
+      content: '';
+      position: absolute;
+      width: 12px; height: 12px;
+      border-color: #00e5ff;
+      border-style: solid;
+    }
+    #terminal::before { top: -2px; left: -2px; border-width: 2px 0 0 2px; }
+    #terminal::after  { bottom: -2px; right: -2px; border-width: 0 2px 2px 0; }
+
+    /* Línea del typewriter */
+    .linea {
+      font-size: clamp(12px, 1.5vw, 14px);
+      line-height: 2;
+      color: #00e5ff;
+      min-height: 28px;
+      white-space: pre;
+    }
+
+    .linea.dim    { color: rgba(0, 229, 255, 0.4); }
+    .linea.ok     { color: #00ff88; }
+    .linea.warn   { color: #ffe600; }
+    .linea.error  { color: #ff2d2d; }
+    .linea.titulo {
+      font-family: Orbitron, monospace;
+      font-size: clamp(16px, 2vw, 20px);
+      font-weight: 900;
+      letter-spacing: 4px;
+      color: #00e5ff;
+      text-shadow: 0 0 16px #00e5ff;
+      margin: 8px 0;
+    }
+
+    /* Cursor parpadeante al final del texto */
+    .cursor-texto {
+      display: inline-block;
+      width: 8px;
+      height: 14px;
+      background: #00e5ff;
+      margin-left: 2px;
+      vertical-align: middle;
+      animation: parpadeo 0.7s step-end infinite;
+    }
+
+    @keyframes parpadeo {
+      50% { opacity: 0; }
+    }
+
+    /* Botón de entrada — aparece al final */
+    #btn-entrar {
+      display: none;
+      margin-top: 32px;
+      background: none;
+      border: 1px solid #00e5ff;
+      color: #00e5ff;
+      font-family: Orbitron, monospace;
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      padding: 12px 32px;
+      cursor: pointer;
+      text-transform: uppercase;
+      position: relative;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+
+    #btn-entrar:hover {
+      background: rgba(0, 229, 255, 0.1);
+      box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+    }
+
+    /* Glitch en el botón al hacer hover */
+    #btn-entrar:hover::before {
+      content: attr(data-text);
+      position: absolute;
+      left: 2px; top: 0;
+      color: #ff2d2d;
+      clip-path: polygon(0 30%, 100% 30%, 100% 50%, 0 50%);
+      animation: glitch-btn 0.3s infinite;
+    }
+
+    @keyframes glitch-btn {
+      0%   { transform: translateX(0); }
+      25%  { transform: translateX(-2px); }
+      75%  { transform: translateX(2px); }
+      100% { transform: translateX(0); }
+    }
+
+    /* Fade out al entrar */
+    #pantalla-boot {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+      transition: opacity 0.8s ease;
+      z-index: 100;
+    }
+
+    #pantalla-boot.saliendo {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Barra de progreso */
+    #barra-contenedor {
+      width: 100%;
+      height: 2px;
+      background: rgba(0, 229, 255, 0.1);
+      margin-top: 16px;
+      display: none;
+    }
+
+    #barra-progreso {
+      height: 100%;
+      width: 0%;
+      background: #00e5ff;
+      box-shadow: 0 0 8px #00e5ff;
+      transition: width 0.1s linear;
+    }
+  </style>
 </head>
 <body>
-<div id="escritorio">
-    <div class="ventana" id="win-menu" style="left: 20px; top: 20px; width: 580px; height: 410px;">
-      <div class="ventana-barra" data-id="win-menu">
-        <span class="ventana-titulo">MENÚ</span>
-        <div class="ventana-controles">
-          <button class="btn-ventana btn-min" data-id="win-menu" title="Minimizar">_</button>
-          <button class="btn-ventana btn-max" data-id="win-menu" title="Maximizar">□</button>
-          <button class="btn-ventana btn-close" data-id="win-menu" title="Cerrar">✕</button>
-        </div>
-      </div>
-      <div class="ventana-cuerpo">
-        <div class="ascii-container">
-          <pre>
-              _-o#&&*''''?d:>b\_
-          _o/"`''  '',, dMF9MMMMMHo_
-       .o&#'        `"MbHMMMMMMMMMMMHo.
-     .o"" '         vodM*$&&HMMMMMMMMMM?.
-    ,'              $M&ood,~'`(&##MMMMMMH\
-   /               ,MMMMMMM#b?#bobMMMMHMMML
-  &              ?MMMMMMMMMMMMMMMMM7MMM$R*Hk
- ?$.            :MMMMMMMMMMMMMMMMMMM/HMMM|`*L
-|               |MMMMMMMMMMMMMMMMMMMMbMH'   T,
-$H#:            `*MMMMMMMMMMMMMMMMMMMMb#}'  `?
-]MMH#             ""*""""*#MMMMMMMMMMMMM'    -
-MMMMMb_                   |MMMMMMMMMMMP'     :
-HMMMMMMMHo                 `MMMMMMMMMT       .
-?MMMMMMMMP                  9MMMMMMMM}       -
--?MMMMMMM                  |MMMMMMMMM?,d-    '
- :|MMMMMM-                 `MMMMMMMMT .M|.   :
-  .9MMM[                    &MMMMM*' `'    .
-   :9MMk                    `MMM#"        -
-     &M}                     `          .-
-      `&.                             .
-        `~,   .                     ./
-            . _                  .-
-              '`--._,dd###pp=""'
 
-          </pre>
-        </div>
-        <div class="menu-seleccion">
-          <h4>
-            <a href="che_guevara/inicio.html">
-              <button class="menu_boton">La maravillosa vida breve de Ernesto Guevara</button>
-            </a>
-          </h4>
-        </div>
-        <div class="resize-handle" data-id="win-menu"></div>
+  <div id="cursor"></div>
+
+  <div id="pantalla-boot">
+    <div id="terminal">
+      <div id="lineas"></div>
+      <div id="barra-contenedor">
+        <div id="barra-progreso"></div>
       </div>
     </div>
-    <div class="ventana" id="win-info" style="left: 610px; top: 20px; width: 730px; height: 410px;">
-      <div class="ventana-barra" data-id="win-info">
-        <span class="ventana-titulo">ACERCA DE</span>
-        <div class="ventana-controles">
-          <button class="btn-ventana btn-min" data-id="win-info" title="Minimizar">_</button>
-          <button class="btn-ventana btn-max" data-id="win-info" title="Maximizar">□</button>
-          <button class="btn-ventana btn-close" data-id="win-info" title="Cerrar">✕</button>
-        </div>
-      </div>
-      <div class="ventana-cuerpo">
-        <p class="info-texto">
-          En esta pagina subo pequeños articulos relacionados con los reels que subo en instagram :)
-        </p>
-        <div class="resize-handle" data-id="win-info"></div>
-      </div>
-    </div>
-</div>
-  <!-- TASKBAR inferior -->
-  <div id="taskbar">
-    <span class="taskbar-logo">SYS://</span>
-    <div id="taskbar-botones"></div>
-    <button id="btn-nueva-nota" onclick="crearNota()">+ NUEVA NOTA</button>
+    <button id="btn-entrar" data-text="[ ENTRAR AL SISTEMA ]">[ ENTRAR AL SISTEMA ]</button>
   </div>
- 
-  <script src="ventanas.js"></script>
+
+  <!-- Audio en loop — cambia "musica.mp3" por el nombre real de tu archivo -->
+  <audio id="audio-bg" src="audio/fondo.mp3" loop></audio>
+
+  <script>
+    // --------------------------------------------------
+    // CURSOR PERSONALIZADO
+    // --------------------------------------------------
+    const cursor = document.getElementById('cursor');
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top  = e.clientY + 'px';
+    });
+
+    // --------------------------------------------------
+    // SECUENCIA DE BOOT
+    // Cada objeto define una línea y cuánto esperar
+    // antes de escribirla (delay) y a qué velocidad
+    // (velocidad = ms por caracter)
+    // --------------------------------------------------
+    const secuencia = [
+      { texto: '> INICIANDO SISTEMA...',              clase: '',      delay: 300,  velocidad: 45 },
+      { texto: '> VERIFICANDO INTEGRIDAD...',         clase: 'dim',   delay: 200,  velocidad: 35 },
+      { texto: '> [OK] KERNEL CARGADO',               clase: 'ok',    delay: 150,  velocidad: 25 },
+      { texto: '> [OK] MÓDULOS ACTIVOS',              clase: 'ok',    delay: 100,  velocidad: 25 },
+      { texto: '> [WARN] SEÑAL INESTABLE',            clase: 'warn',  delay: 400,  velocidad: 30 },
+      { texto: '> [OK] CONEXIÓN ESTABLECIDA',         clase: 'ok',    delay: 600,  velocidad: 25 },
+      { texto: '',                                     clase: '',      delay: 100,  velocidad: 0  },
+      { texto: '════════════════════════════════════', clase: 'dim',   delay: 0,    velocidad: 8  },
+      { texto: '  S I S T E M A   A C T I V O',       clase: 'titulo',delay: 200,  velocidad: 40 },
+      { texto: '════════════════════════════════════', clase: 'dim',   delay: 0,    velocidad: 8  },
+      { texto: '',                                     clase: '',      delay: 200,  velocidad: 0  },
+      { texto: '> CARGANDO INTERFAZ...',              clase: '',      delay: 300,  velocidad: 35 },
+    ];
+
+    const contenedor = document.getElementById('lineas');
+    const barraContenedor = document.getElementById('barra-contenedor');
+    const barra = document.getElementById('barra-progreso');
+    const btnEntrar = document.getElementById('btn-entrar');
+
+    // Escribe un texto caracter por caracter en un elemento
+    function escribir(elemento, texto, velocidad) {
+      return new Promise(resolve => {
+        if (velocidad === 0 || texto === '') {
+          elemento.textContent = texto;
+          resolve();
+          return;
+        }
+
+        let i = 0;
+        // Cursor parpadeante mientras escribe
+        const cursorEl = document.createElement('span');
+        cursorEl.className = 'cursor-texto';
+        elemento.appendChild(cursorEl);
+
+        const intervalo = setInterval(() => {
+          elemento.insertBefore(document.createTextNode(texto[i]), cursorEl);
+          i++;
+          if (i >= texto.length) {
+            clearInterval(intervalo);
+            cursorEl.remove();
+            resolve();
+          }
+        }, velocidad);
+      });
+    }
+
+    // Espera N milisegundos
+    function esperar(ms) {
+      return new Promise(r => setTimeout(r, ms));
+    }
+
+    // Anima la barra de progreso de 0 a 100%
+    function animarBarra() {
+      return new Promise(resolve => {
+        barraContenedor.style.display = 'block';
+        let progreso = 0;
+        const intervalo = setInterval(() => {
+          // Velocidad irregular para que parezca real
+          progreso += Math.random() * 8 + 2;
+          if (progreso >= 100) {
+            progreso = 100;
+            clearInterval(intervalo);
+            setTimeout(resolve, 300);
+          }
+          barra.style.width = progreso + '%';
+        }, 80);
+      });
+    }
+
+    // Ejecuta toda la secuencia de boot
+    async function ejecutarBoot() {
+      for (const item of secuencia) {
+        await esperar(item.delay);
+
+        const linea = document.createElement('div');
+        linea.className = 'linea ' + item.clase;
+        contenedor.appendChild(linea);
+
+        // Scroll automático hacia abajo
+        contenedor.scrollTop = contenedor.scrollHeight;
+
+        await escribir(linea, item.texto, item.velocidad);
+      }
+
+      // Barra de progreso al final de las líneas
+      await esperar(200);
+      await animarBarra();
+
+      // Mostrar botón de entrada
+      await esperar(300);
+      btnEntrar.style.display = 'block';
+      btnEntrar.style.animation = 'parpadeo 1s step-end infinite';
+    }
+
+    // --------------------------------------------------
+    // ENTRADA AL SITIO — click en el botón
+    // --------------------------------------------------
+    btnEntrar.addEventListener('click', () => {
+      // Arrancamos el audio (aquí sí puede porque hubo interacción)
+      const audio = document.getElementById('audio-bg');
+      audio.volume = 0.4;
+      audio.play().catch(() => {
+        // Si falla silenciosamente, no bloqueamos la entrada
+      });
+
+      // Fade out de la pantalla de boot
+      const pantalla = document.getElementById('pantalla-boot');
+      pantalla.classList.add('saliendo');
+
+      // Después del fade, redirigir al sitio real
+      // Cambia 'sitio.html' por el nombre de tu página principal
+      setTimeout(() => {
+        // Guardamos en sessionStorage que el audio debe seguir
+        // (útil si quieres pasarlo entre páginas)
+        sessionStorage.setItem('boot-completo', 'true');
+
+        // Aquí va la redirección a tu sitio real:
+        window.location.href = 'principal.html';
+
+        // Por ahora solo ocultamos la pantalla para ver el fondo
+        pantalla.style.display = 'none';
+      }, 800);
+    });
+
+    // --------------------------------------------------
+    // INICIAR
+    // --------------------------------------------------
+    ejecutarBoot();
+  </script>
 </body>
 </html>
