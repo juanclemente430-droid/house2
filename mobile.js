@@ -28,7 +28,7 @@
 const ARTICULOS = {
   guatemala: {
     titulo: 'Golpe de Estado en Guatemala — 1954',
-    desc:   'Descripción breve',
+    desc:   'Futura descripción breve',
     render: true,
     tags:   ['imperialismo', 'latinoamerica', 'cia'],
   },
