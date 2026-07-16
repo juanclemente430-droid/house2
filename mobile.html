@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>SYS://daniel.io — terminal</title>
+  <link rel="stylesheet" href="mobile.css">
+</head>
+<body>
+<div id="app">
+
+  <div id="topbar">
+    <div class="logo">SYS://</div>
+    <div class="meta">
+      <span class="status-dot"></span>SESSION ACTIVE<br>
+      <span class="version">daniel.io — v1.0</span>
+    </div>
+  </div>
+
+  <div id="output"></div>
+
+  <div id="hint-bar">
+    <div class="hint-chip" onclick="runCmd('help')">help</div>
+    <div class="hint-chip" onclick="runCmd('ls')">ls</div>
+    <div class="hint-chip" onclick="runCmd('whoami')">whoami</div>
+    <div class="hint-chip" onclick="runCmd('clear')">clear</div>
+    <div class="hint-chip" onclick="runCmd('open guevara')">open guevara</div>
+    <div class="hint-chip" onclick="runCmd('about')">about</div>
+  </div>
+
+  <div id="input-row">
+    <span class="prompt-sign">$</span>
+    <input id="cmd-input" type="text"
+           autocomplete="off"
+           autocorrect="off"
+           autocapitalize="off"
+           spellcheck="false"
+           placeholder="escribe un comando...">
+    <button id="send-btn" onclick="submitCmd()">EXEC</button>
+  </div>
+
+</div>
+<script src="mobile.js"></script>
+</body>
+</html>

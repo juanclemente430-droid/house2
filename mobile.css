@@ -1,0 +1,240 @@
+/* =============================================
+   mobile.css — Terminal móvil
+   ============================================= */
+
+/* ── RESET Y VARIABLES ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --cyan:       rgba(65, 205, 220, 1);
+  --cyan-dim:   rgba(65, 205, 220, 0.45);
+  --cyan-ghost: rgba(65, 205, 220, 0.08);
+  --green:      #b3ff00;
+  --green-dim:  rgba(179, 255, 0, 0.6);
+  --bg:         #050508;
+  --bg2:        #0a0a10;
+  --text:       #c8f7ff;
+  --muted:      rgba(200, 247, 255, 0.35);
+}
+
+/* ── BASE ── */
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 14px;
+  overflow: hidden;
+}
+
+/* ── LAYOUT PRINCIPAL ── */
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+}
+
+/* ── TOPBAR ── */
+#topbar {
+  flex-shrink: 0;
+  background: #000;
+  border-bottom: 1.5px solid var(--cyan);
+  padding: 10px 14px 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+#topbar .logo {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--cyan);
+  letter-spacing: 3px;
+}
+
+#topbar .meta {
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  text-align: right;
+  line-height: 1.5;
+}
+
+#topbar .version {
+  font-size: 9px;
+}
+
+/* ── PUNTO DE ESTADO ANIMADO ── */
+.status-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: var(--green);
+  border-radius: 50%;
+  margin-right: 4px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1;   }
+  50%       { opacity: 0.3; }
+}
+
+/* ── ÁREA DE OUTPUT ── */
+#output {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  scroll-behavior: smooth;
+}
+
+#output::-webkit-scrollbar       { width: 3px; }
+#output::-webkit-scrollbar-track { background: transparent; }
+#output::-webkit-scrollbar-thumb { background: var(--cyan-dim); border-radius: 2px; }
+
+/* ── LÍNEAS DE TERMINAL ── */
+.line {
+  line-height: 1.65;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.line.prompt         { color: var(--cyan); }
+.line.prompt::before { content: '$ '; color: var(--green); }
+.line.out            { color: var(--muted);  padding-left: 14px; }
+.line.info           { color: var(--text);   padding-left: 14px; }
+.line.err            { color: #ff4444;       padding-left: 14px; }
+.line.blank          { height: 6px; }
+
+.line.head {
+  color: var(--cyan);
+  border-bottom: 1px solid var(--cyan-dim);
+  padding-bottom: 3px;
+  margin: 6px 0 2px;
+  letter-spacing: 1px;
+}
+
+/* ── LINKS DENTRO DEL OUTPUT ── */
+.t-link {
+  color: var(--green);
+  cursor: pointer;
+  text-decoration: none;
+  padding-left: 14px;
+  display: block;
+  line-height: 1.8;
+}
+
+.t-link::before { content: '→ '; }
+
+.t-link:hover,
+.t-link:active {
+  color: #000;
+  background: var(--green);
+  padding-right: 4px;
+}
+
+/* ── BLOQUE CON BORDE IZQUIERDO ── */
+.section-block {
+  border-left: 2px solid var(--cyan-dim);
+  margin: 4px 0;
+  padding-left: 8px;
+}
+
+/* ── CURSOR PARPADEANTE ── */
+.cursor {
+  display: inline-block;
+  width: 8px;
+  height: 14px;
+  background: var(--cyan);
+  vertical-align: middle;
+  animation: blink 1s step-end infinite;
+  margin-left: 2px;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* ── CHIPS DE AYUDA RÁPIDA ── */
+#hint-bar {
+  flex-shrink: 0;
+  background: var(--bg2);
+  border-top: 1px solid var(--cyan-ghost);
+  padding: 5px 14px;
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+#hint-bar::-webkit-scrollbar { display: none; }
+
+.hint-chip {
+  flex-shrink: 0;
+  font-size: 10px;
+  color: var(--muted);
+  border: 1px solid var(--cyan-ghost);
+  padding: 3px 8px;
+  border-radius: 2px;
+  cursor: pointer;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+}
+
+.hint-chip:active {
+  color: var(--cyan);
+  border-color: var(--cyan-dim);
+}
+
+/* ── FILA DE INPUT ── */
+#input-row {
+  flex-shrink: 0;
+  background: #000;
+  border-top: 1.5px solid var(--cyan);
+  display: flex;
+  align-items: center;
+  padding: 8px 14px;
+  gap: 8px;
+}
+
+#input-row .prompt-sign {
+  color: var(--green);
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+#cmd-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--cyan);
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  caret-color: var(--cyan);
+}
+
+#cmd-input::placeholder { color: var(--muted); }
+
+#send-btn {
+  background: none;
+  border: 1px solid var(--cyan-dim);
+  color: var(--cyan);
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  padding: 4px 10px;
+  cursor: pointer;
+  border-radius: 2px;
+  letter-spacing: 1px;
+  flex-shrink: 0;
+}
+
+#send-btn:active { background: var(--cyan-ghost); }
