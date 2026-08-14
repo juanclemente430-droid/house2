@@ -68,7 +68,6 @@ const CMDS = {
       ['ls',            'lista los artículos disponibles'],
       ['open <nombre>', 'abre un artículo  (ej: open guatemala)'],
       ['about',         'información sobre esta página'],
-      ['whoami',        'identidad del sistema'],
       ['ascii',         'muestra el logo ASCII'],
       ['tags <tag>',    'filtra artículos por etiqueta'],
       ['clear',         'limpia la terminal'],
@@ -357,7 +356,6 @@ const RENDERERS = {
   async guatemala() {
 
     addLine('head', '════════════════════════════════════');
-    addLine('head', '  OPERACIÓN PBSUCCESS');
     addLine('head', '  Golpe de Estado en Guatemala — 1954');
     addLine('head', '════════════════════════════════════');
     addBlank();
